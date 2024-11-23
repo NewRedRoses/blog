@@ -1,11 +1,29 @@
 import { Router } from "express";
 export const posts = Router();
 
+import { PrismaClient } from "@prisma/client";
+const prisma = new PrismaClient();
+
 //  /Posts
-posts.get("/", (req, res) => {
-  res.json({
-    message: "retrieves all posts",
-  });
+
+posts.get("/", async (req, res) => {
+  try {
+    const posts = await prisma.post.findMany({
+      where: {
+        NOT: {
+          date_published: null,
+        },
+      },
+      select: {
+        id: true,
+        title: true,
+      },
+    });
+    res.status(200).json(posts);
+  } catch (error) {
+    console.log(error);
+    res.status(500);
+  }
 });
 
 posts.post("/", (req, res) => {
