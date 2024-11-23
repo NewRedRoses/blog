@@ -45,11 +45,20 @@ posts.post("/", async (req, res) => {
 
 // /Post/:postId
 
-posts.get("/:postId", (req, res) => {
-  res.json({
-    message: "retrieves specific post from id",
-    postId: req.params.postId,
-  });
+posts.get("/:postId", async (req, res) => {
+  try {
+    const post = await prisma.post.findFirst({
+      where: {
+        id: parseInt(req.params.postId),
+      },
+    });
+    if (post === null) {
+      return res.status(404).json({ error: 404, message: "Post not found" });
+    }
+    res.json(post);
+  } catch (error) {
+    console.log(error);
+  }
 });
 
 posts.put("/:postId", (req, res) => {
