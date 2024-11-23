@@ -26,10 +26,21 @@ posts.get("/", async (req, res) => {
   }
 });
 
-posts.post("/", (req, res) => {
-  res.json({
-    message: "creates new post",
-  });
+posts.post("/", async (req, res) => {
+  try {
+    const { title, content, userId } = req.body;
+
+    await prisma.post.create({
+      data: {
+        title,
+        content,
+        userId: parseInt(userId),
+      },
+    });
+    res.redirect("/posts");
+  } catch (error) {
+    console.log(error);
+  }
 });
 
 // /Post/:postId
