@@ -1,13 +1,10 @@
 import express from "express";
+import { posts } from "./Routers/postsRouter.js";
 
 const app = express();
 const port = process.env.port || 3000;
 
-app.get("/", (req, res) => {
-  res.json({
-    message: "welcome",
-  });
-});
+app.use("/posts", posts);
 
 app.listen(port, () => {
   console.log(`Launched in port: ${port}`);
