@@ -94,10 +94,15 @@ posts.post("/:postId/comments", async (req, res) => {
 
 // /Posts/:postId/comments/:commentId
 
-posts.delete("/:postId/comments/:commentId", (req, res) => {
-  res.json({
-    message: "Deletes the new comment on post",
-    commentId: req.params.commentId,
-    postId: req.params.postId,
-  });
+posts.delete("/:postId/comments/:commentId", async (req, res) => {
+  try {
+    await prisma.postComments.delete({
+      where: {
+        id: parseInt(req.params.commentId),
+      },
+    });
+    res.status(200).json({ message: "comment deleted successfully" });
+  } catch (error) {
+    console.log(error);
+  }
 });
