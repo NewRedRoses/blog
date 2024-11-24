@@ -30,6 +30,7 @@ model User {
   date_created DateTime       @default(now())
   Post         Post[]
   PostComments PostComments[]
+  admin        Boolean?
 }
 
 model PostComments {
