@@ -77,11 +77,19 @@ posts.delete("/:postId", (req, res) => {
 
 // /Posts/:postId/comments
 
-posts.post("/:postId/comments", (req, res) => {
-  res.json({
-    message: "Creates new comment on post",
-    postId: req.params.postId,
-  });
+posts.post("/:postId/comments", async (req, res) => {
+  try {
+    await prisma.postComments.create({
+      data: {
+        text: req.body.text,
+        userId: parseInt(req.body.userId),
+        postId: parseInt(req.params.postId),
+      },
+    });
+    res.status(200).json({ message: "comment added successfully" });
+  } catch (error) {
+    console.log(error);
+  }
 });
 
 // /Posts/:postId/comments/:commentId
