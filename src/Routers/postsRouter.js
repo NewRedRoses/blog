@@ -1,4 +1,6 @@
 import { Router } from "express";
+import jwt from "jsonwebtoken";
+import { verifyToken } from "../app.js";
 export const posts = Router();
 
 import { PrismaClient } from "@prisma/client";
@@ -26,18 +28,25 @@ posts.get("/", async (req, res) => {
   }
 });
 
-posts.post("/", async (req, res) => {
+posts.post("/", verifyToken, async (req, res) => {
   try {
-    const { title, content, userId } = req.body;
+    jwt.verify(req.token, process.env.SECRET_KEY, async (err, authData) => {
+      if (err) {
+        res.sendStatus(403); // code may need to change
+      } else {
+        const { title, content, userId } = req.body;
 
-    await prisma.post.create({
-      data: {
-        title,
-        content,
-        userId: parseInt(userId),
-      },
+        await prisma.post.create({
+          data: {
+            title,
+            content,
+            userId: parseInt(userId),
+          },
+        });
+        console.log(authData);
+        res.redirect("/posts");
+      }
     });
-    res.redirect("/posts");
   } catch (error) {
     console.log(error);
   }
