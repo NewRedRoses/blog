@@ -3,12 +3,23 @@ import { posts } from "./Routers/postsRouter.js";
 import { login } from "./Routers/loginRouter.js";
 import "dotenv/config";
 import cors from "cors";
+import session from "express-session";
+import passport from "passport";
 
 const app = express();
 const port = process.env.port || 3000;
 app.use(cors());
 
 app.use(express.json());
+
+app.use(
+  session({
+    secret: process.env.SECRET_KEY,
+    resave: false,
+    saveUninitialized: false,
+  })
+);
+app.use(passport.session());
 app.use(express.urlencoded({ extended: true }));
 
 app.use("/posts", posts);
