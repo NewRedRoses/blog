@@ -46,4 +46,18 @@ passport.deserializeUser(async (id, done) => {
   }
 });
 
-login.post("/", passport.authenticate("local"));
+login.post("/", (req, res, next) => {
+  // Validate user w/ passport
+  passport.authenticate("local", { session: false }, (err, user, info) => {
+    if (err || !user) {
+      return res.status(400).json({ message: info?.message || "Login failed" });
+    }
+    // Generate token
+    const token = jwt.sign({ id: user.id }, process.env.SECRET_KEY, {
+      expiresIn: "1h",
+    });
+    res.json({
+      token: token,
+    });
+  })(req, res, next);
+});
