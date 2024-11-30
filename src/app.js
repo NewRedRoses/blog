@@ -5,6 +5,7 @@ import "dotenv/config";
 import cors from "cors";
 import session from "express-session";
 import passport from "passport";
+import jwt from "jsonwebtoken";
 
 const app = express();
 const port = process.env.port || 3000;
@@ -26,15 +27,32 @@ app.use("/posts", posts);
 app.use("/login", login);
 
 function verifyToken(req, res, next) {
+  // Get auth header value
   const bearerHeader = req.headers["authorization"];
 
+  // Check if bearer is undefined
   if (typeof bearerHeader !== "undefined") {
+    // Split at the space
     const bearer = bearerHeader.split(" ");
+    // Get token from array
     const bearerToken = bearer[1];
+    // Set the token
     req.token = bearerToken;
-    next();
+
+    // Verify the token
+    jwt.verify(bearerToken, process.env.SECRET_KEY, (err, authData) => {
+      if (err) {
+        // If verification fails, send 403 Forbidden
+        return res.status(403).json({ error: "Invalid or expired token" });
+      }
+      // If token is valid, attach the user data to the request
+      req.user = authData;
+      // Next middleware
+      next();
+    });
   } else {
-    res.sendStatus(403);
+    // Forbidden
+    res.status(403).json({ error: "No token provided" });
   }
 }
 
