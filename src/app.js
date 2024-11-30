@@ -1,6 +1,7 @@
 import express from "express";
 import { posts } from "./Routers/postsRouter.js";
 import { login } from "./Routers/loginRouter.js";
+import { admin } from "./Routers/adminRouter.js";
 import "dotenv/config";
 import cors from "cors";
 import session from "express-session";
@@ -25,6 +26,7 @@ app.use(express.urlencoded({ extended: true }));
 
 app.use("/posts", posts);
 app.use("/login", login);
+app.use("/admin", admin);
 
 function verifyToken(req, res, next) {
   // Get auth header value
