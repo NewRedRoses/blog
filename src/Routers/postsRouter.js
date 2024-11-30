@@ -76,12 +76,27 @@ posts.put("/:postId", (req, res) => {
     postId: req.params.postId,
   });
 });
-
-posts.delete("/:postId", (req, res) => {
-  res.json({
-    message: "delete the post",
-    postId: req.params.postId,
-  });
+// Unpublish post
+posts.delete("/:postId", verifyToken, (req, res) => {
+  try {
+    jwt.verify(req.token, process.env.SECRET_KEY, async (err, authData) => {
+      if (err) {
+        res.status(403);
+      } else {
+        await prisma.post.update({
+          where: {
+            id: parseInt(req.params.postId),
+          },
+          data: {
+            date_published: null,
+          },
+        });
+      }
+    });
+  } catch (error) {
+    console.log(error);
+    res.status(500).end();
+  }
 });
 
 // /Posts/:postId/comments
