@@ -81,45 +81,50 @@ posts.get("/:postId", async (req, res) => {
 
   */
 
-posts.patch("/:postId", async (req, res) => {
-  const publish = parseBoolean(req.query.publish);
+posts.patch("/:postId", verifyToken, (req, res) => {
+  jwt.verify(req.token, process.env.SECRET_KEY, async (err, authData) => {
+    const publish = parseBoolean(req.query.publish);
 
-  if (publish) {
-    try {
-      await prisma.post.update({
-        where: {
-          id: parseInt(req.params.postId),
-        },
-        data: {
-          date_published: req.body.date_published,
-        },
-      });
-      return res.json({ code: 1, message: "Post was successfully published" });
-    } catch (error) {
-      console.log("ERROR: Unable to update post status", error);
-      return res
-        .status(400)
-        .json({ code: 0, error: "Post was unable to be published" });
+    if (publish) {
+      try {
+        await prisma.post.update({
+          where: {
+            id: parseInt(req.params.postId),
+          },
+          data: {
+            date_published: req.body.date_published,
+          },
+        });
+        return res.json({
+          code: 1,
+          message: "Post was successfully published",
+        });
+      } catch (error) {
+        console.log("ERROR: Unable to update post status", error);
+        return res
+          .status(400)
+          .json({ code: 0, error: "Post was unable to be published" });
+      }
+    } else if (publish == false) {
+      try {
+        await prisma.post.update({
+          where: {
+            id: parseInt(req.params.postId),
+          },
+          data: {
+            date_published: null,
+          },
+        });
+        return res.json({ code: 2, message: "Post successfully unpublished" });
+      } catch (error) {
+        console.log("ERROR: Unable to update post status", error);
+        return res
+          .status(400)
+          .json({ code: 0, error: "Post was unable to be unpublished" });
+      }
     }
-  } else if (publish == false) {
-    try {
-      await prisma.post.update({
-        where: {
-          id: parseInt(req.params.postId),
-        },
-        data: {
-          date_published: null,
-        },
-      });
-      return res.json({ code: 2, message: "Post successfully unpublished" });
-    } catch (error) {
-      console.log("ERROR: Unable to update post status", error);
-      return res
-        .status(400)
-        .json({ code: 0, error: "Post was unable to be unpublished" });
-    }
-  }
-  res.json({ message: "no partial changes made to post" });
+    res.json({ message: "no partial changes made to post" });
+  });
 });
 
 // /Posts/:postId/comments
