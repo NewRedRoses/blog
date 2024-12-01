@@ -64,39 +64,62 @@ posts.get("/:postId", async (req, res) => {
     if (post === null) {
       return res.status(404).json({ error: 404, message: "Post not found" });
     }
-    res.json(post);
+    if (post.date_published != null) {
+      res.json(post);
+    } else {
+      error404(res);
+    }
   } catch (error) {
     console.log(error);
   }
 });
 
-posts.put("/:postId", (req, res) => {
-  res.json({
-    message: "update the post's content",
-    postId: req.params.postId,
-  });
-});
-// Unpublish post
-posts.delete("/:postId", verifyToken, (req, res) => {
-  try {
-    jwt.verify(req.token, process.env.SECRET_KEY, async (err, authData) => {
-      if (err) {
-        res.status(403);
-      } else {
-        await prisma.post.update({
-          where: {
-            id: parseInt(req.params.postId),
-          },
-          data: {
-            date_published: null,
-          },
-        });
-      }
-    });
-  } catch (error) {
-    console.log(error);
-    res.status(500).end();
+/* Error code explanations for front-end comms
+      0 : error
+      1 : published successfully
+      2 : unpublished successfully
+
+  */
+
+posts.patch("/:postId", async (req, res) => {
+  const publish = parseBoolean(req.query.publish);
+
+  if (publish) {
+    try {
+      await prisma.post.update({
+        where: {
+          id: parseInt(req.params.postId),
+        },
+        data: {
+          date_published: req.body.date_published,
+        },
+      });
+      return res.json({ code: 1, message: "Post was successfully published" });
+    } catch (error) {
+      console.log("ERROR: Unable to update post status", error);
+      return res
+        .status(400)
+        .json({ code: 0, error: "Post was unable to be published" });
+    }
+  } else if (publish == false) {
+    try {
+      await prisma.post.update({
+        where: {
+          id: parseInt(req.params.postId),
+        },
+        data: {
+          date_published: null,
+        },
+      });
+      return res.json({ code: 2, message: "Post successfully unpublished" });
+    } catch (error) {
+      console.log("ERROR: Unable to update post status", error);
+      return res
+        .status(400)
+        .json({ code: 0, error: "Post was unable to be unpublished" });
+    }
   }
+  res.json({ message: "no partial changes made to post" });
 });
 
 // /Posts/:postId/comments
@@ -130,3 +153,19 @@ posts.delete("/:postId/comments/:commentId", async (req, res) => {
     console.log(error);
   }
 });
+
+function error404(res) {
+  return res
+    .json({
+      title: "404 - Missing or Unpublished page",
+      content: "You don't have the right, O you don't have the right...",
+    })
+    .sendStatus(404);
+}
+function parseBoolean(booleanString) {
+  return booleanString === "true"
+    ? true
+    : booleanString === "false"
+    ? false
+    : undefined;
+}
