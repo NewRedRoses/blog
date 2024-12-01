@@ -6,7 +6,7 @@ import { PrismaClient } from "@prisma/client";
 const prisma = new PrismaClient();
 export const admin = Router();
 
-admin.get("/posts", verifyToken, (req, res) => {
+admin.get("/posts/", verifyToken, (req, res) => {
   jwt.verify(req.token, process.env.SECRET_KEY, async (err, authData) => {
     if (err) {
       res.json(403);
@@ -14,5 +14,15 @@ admin.get("/posts", verifyToken, (req, res) => {
       const posts = await prisma.post.findMany({});
       res.json(posts);
     }
+  });
+});
+admin.get("/posts/:postId", verifyToken, (req, res) => {
+  jwt.verify(req.token, process.env.SECRET_KEY, async (err, authData) => {
+    const post = await prisma.post.findFirst({
+      where: {
+        id: parseInt(req.params.postId),
+      },
+    });
+    res.json(post);
   });
 });
