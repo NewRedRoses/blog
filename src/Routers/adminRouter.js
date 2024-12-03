@@ -64,10 +64,10 @@ admin.put("/posts/:postId", verifyToken, (req, res) => {
 });
 
 // Comments
-admin.get("/comments/:postId", async (req, res) => {
+admin.get("/comments/:commentId", async (req, res) => {
   const comments = await prisma.postComments.findMany({
     where: {
-      postId: parseInt(req.params.postId),
+      postId: parseInt(req.params.commentId),
     },
     orderBy: {
       date_created: "desc",
@@ -84,4 +84,12 @@ admin.get("/comments/:postId", async (req, res) => {
     },
   });
   res.json(comments);
+});
+admin.delete("/comments/:commentId", async (req, res) => {
+  await prisma.postComments.delete({
+    where: {
+      id: parseInt(req.params.commentId),
+    },
+  });
+  res.json({ message: "comment deleted successfully" });
 });
