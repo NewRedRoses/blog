@@ -160,12 +160,10 @@ posts.delete("/:postId/comments/:commentId", async (req, res) => {
 });
 
 function error404(res) {
-  return res
-    .json({
-      title: "404 - Missing or Unpublished page",
-      content: "You don't have the right, O you don't have the right...",
-    })
-    .sendStatus(404);
+  return res.status(404).json({
+    title: "404 - Missing or Unpublished page",
+    content: "You don't have the right, O you don't have the right...",
+  });
 }
 function parseBoolean(booleanString) {
   return booleanString === "true"
