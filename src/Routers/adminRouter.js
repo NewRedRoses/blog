@@ -16,6 +16,22 @@ admin.get("/posts/", verifyToken, (req, res) => {
     }
   });
 });
+admin.post("/posts/", verifyToken, (req, res) => {
+  jwt.verify(req.token, process.env.SECRET_KEY, async (err, authData) => {
+    if (err) {
+      res.json(403);
+    } else {
+      await prisma.post.create({
+        data: {
+          userId: authData.id,
+          title: req.body.title,
+          content: req.body.content,
+        },
+      });
+      res.json({ message: "Post created successfully" });
+    }
+  });
+});
 admin.get("/posts/:postId", verifyToken, (req, res) => {
   jwt.verify(req.token, process.env.SECRET_KEY, async (err, authData) => {
     const post = await prisma.post.findFirst({
