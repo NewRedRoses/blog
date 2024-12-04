@@ -148,8 +148,8 @@ posts.post("/:postId/comments", async (req, res) => {
   try {
     await prisma.postComments.create({
       data: {
-        text: req.body.text,
-        userId: parseInt(req.body.userId),
+        text: req.body.message,
+        username: req.body.username,
         postId: parseInt(req.params.postId),
       },
     });
