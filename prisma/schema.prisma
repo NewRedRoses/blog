@@ -25,13 +25,12 @@ model Post {
 }
 
 model User {
-  id           Int            @id @default(autoincrement())
-  email        String         @unique @db.VarChar(100)
-  password     String         @db.VarChar(100)
+  id           Int      @id @default(autoincrement())
+  email        String   @unique @db.VarChar(100)
+  password     String   @db.VarChar(100)
   name         String
-  date_created DateTime       @default(now())
+  date_created DateTime @default(now())
   Post         Post[]
-  PostComments PostComments[]
   admin        Boolean?
 }
 
@@ -40,7 +39,6 @@ model PostComments {
   text         String
   postId       Int
   post         Post     @relation(fields: [postId], references: [id])
-  userId       Int
-  user         User     @relation(fields: [userId], references: [id])
+  username     String
   date_created DateTime @default(now())
 }
