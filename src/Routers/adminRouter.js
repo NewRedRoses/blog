@@ -76,11 +76,7 @@ admin.get("/comments/:commentId", async (req, res) => {
       id: true,
       text: true,
       date_created: true,
-      user: {
-        select: {
-          name: true,
-        },
-      },
+      username: true,
     },
   });
   res.json(comments);
