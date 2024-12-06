@@ -11,6 +11,9 @@ const prisma = new PrismaClient();
 posts.get("/", async (req, res) => {
   try {
     const posts = await prisma.post.findMany({
+      orderBy: {
+        date_published: "desc",
+      },
       where: {
         NOT: {
           date_published: null,
@@ -19,6 +22,7 @@ posts.get("/", async (req, res) => {
       select: {
         id: true,
         title: true,
+        date_published: true,
       },
     });
     res.status(200).json(posts);
