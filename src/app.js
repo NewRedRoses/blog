@@ -7,12 +7,16 @@ import cors from "cors";
 import session from "express-session";
 import passport from "passport";
 import jwt from "jsonwebtoken";
+import apicache from "apicache";
 
 const app = express();
+const cache = apicache.middleware;
+
 const port = process.env.port || 3000;
 app.use(cors());
 
 app.use(express.json());
+app.use(cache("5 minutes"));
 
 app.use(
   session({
