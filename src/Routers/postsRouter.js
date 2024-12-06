@@ -146,6 +146,9 @@ posts.patch("/:postId", verifyToken, (req, res) => {
 
 posts.get("/:postId/comments", async (req, res) => {
   const comments = await prisma.postComments.findMany({
+    orderBy: {
+      date_created: "desc",
+    },
     where: {
       postId: parseInt(req.params.postId),
     },
