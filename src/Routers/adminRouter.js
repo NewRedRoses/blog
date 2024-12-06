@@ -64,28 +64,40 @@ admin.put("/posts/:postId", verifyToken, (req, res) => {
 });
 
 // Comments
-admin.get("/comments/:commentId", async (req, res) => {
-  const comments = await prisma.postComments.findMany({
-    where: {
-      postId: parseInt(req.params.commentId),
-    },
-    orderBy: {
-      date_created: "desc",
-    },
-    select: {
-      id: true,
-      text: true,
-      date_created: true,
-      username: true,
-    },
+admin.get("/comments/:commentId", verifyToken, async (req, res) => {
+  jwt.verify(req.token, process.env.SECRET_KEY, async (err, authData) => {
+    if (err) {
+      res.status(403);
+    } else {
+      const comments = await prisma.postComments.findMany({
+        where: {
+          postId: parseInt(req.params.commentId),
+        },
+        orderBy: {
+          date_created: "desc",
+        },
+        select: {
+          id: true,
+          text: true,
+          date_created: true,
+          username: true,
+        },
+      });
+      res.json(comments);
+    }
   });
-  res.json(comments);
 });
-admin.delete("/comments/:commentId", async (req, res) => {
-  await prisma.postComments.delete({
-    where: {
-      id: parseInt(req.params.commentId),
-    },
+admin.delete("/comments/:commentId", verifyToken, async (req, res) => {
+  jwt.verify(req.token, process.env.SECRET_KEY, async (err, authData) => {
+    if (err) {
+      res.status(403);
+    } else {
+    }
+    await prisma.postComments.delete({
+      where: {
+        id: parseInt(req.params.commentId),
+      },
+    });
+    res.json({ message: "comment deleted successfully" });
   });
-  res.json({ message: "comment deleted successfully" });
 });
