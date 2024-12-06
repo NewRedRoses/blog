@@ -64,7 +64,18 @@ posts.get("/:postId", async (req, res) => {
       where: {
         id: parseInt(req.params.postId),
       },
+      select: {
+        title: true,
+        date_published: true,
+        content: true,
+        user: {
+          select: {
+            name: true,
+          },
+        },
+      },
     });
+
     if (post === null) {
       return res.status(404).json({ error: 404, message: "Post not found" });
     }
