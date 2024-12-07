@@ -1,14 +1,16 @@
 import { Router } from "express";
 import jwt from "jsonwebtoken";
 import { verifyToken } from "../app.js";
+import apicache from "apicache";
 export const posts = Router();
 
 import { PrismaClient } from "@prisma/client";
 const prisma = new PrismaClient();
+const cache = apicache.options({ debug: true }).middleware;
 
 //  /Posts
 
-posts.get("/", async (req, res) => {
+posts.get("/", cache("3 minutes"), async (req, res) => {
   try {
     const posts = await prisma.post.findMany({
       orderBy: {
@@ -58,7 +60,7 @@ posts.post("/", verifyToken, async (req, res) => {
 
 // /Post/:postId
 
-posts.get("/:postId", async (req, res) => {
+posts.get("/:postId", cache("3 minutes"), async (req, res) => {
   try {
     const post = await prisma.post.findFirst({
       where: {
@@ -144,7 +146,7 @@ posts.patch("/:postId", verifyToken, (req, res) => {
 
 // /Posts/:postId/comments
 
-posts.get("/:postId/comments", async (req, res) => {
+posts.get("/:postId/comments", cache("3 minutes"), async (req, res) => {
   const comments = await prisma.postComments.findMany({
     orderBy: {
       date_created: "desc",
